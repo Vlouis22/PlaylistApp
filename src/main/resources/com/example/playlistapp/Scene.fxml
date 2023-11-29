@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: &quot;white&quot;;" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.playlistapp.Controller">
+   <children>
+      <Button fx:id="previousButton" layoutX="162.0" layoutY="373.0" mnemonicParsing="false" onAction="#previousMedia" text="Previous" />
+      <Button fx:id="pauseButton" layoutX="280.0" layoutY="373.0" mnemonicParsing="false" onAction="#pauseMedia" prefHeight="26.0" prefWidth="54.0" text="Pause" />
+      <Button fx:id="playButton" layoutX="226.0" layoutY="373.0" mnemonicParsing="false" onAction="#playMedia" prefHeight="26.0" prefWidth="54.0" text="Play" />
+      <Button fx:id="nextButton" layoutX="391.0" layoutY="373.0" mnemonicParsing="false" onAction="#nextMedia" prefHeight="26.0" prefWidth="54.0" text="Next" />
+      <ProgressBar fx:id="songProgressBar" layoutX="4.0" layoutY="323.0" prefHeight="20.0" prefWidth="600.0" progress="0.0" />
+      <Slider fx:id="volumeSlider" layoutX="14.0" layoutY="118.0" orientation="VERTICAL" />
+      <Button fx:id="restartButton" layoutX="335.0" layoutY="373.0" mnemonicParsing="false" onAction="#restartMedia" text="Restart" />
+      <Label layoutX="181.0" layoutY="70.0" text="Currently Playing: None">
+         <font>
+            <Font size="25.0" />
+         </font></Label>
+      <Label layoutX="245.0" layoutY="14.0" text="Music Player" textFill="#0085e4">
+         <font>
+            <Font name="Arial Rounded MT Bold" size="19.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>
