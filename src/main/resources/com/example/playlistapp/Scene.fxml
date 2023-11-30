@@ -1,26 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: &quot;white&quot;;" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.playlistapp.Controller">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMouseEntered="#showVolumeSlider" onMouseExited="#hideVolumeSlider" onScrollFinished="#hideVolumeSlider" prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: #262626;" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.playlistapp.Controller">
    <children>
-      <Button fx:id="previousButton" layoutX="162.0" layoutY="373.0" mnemonicParsing="false" onAction="#previousMedia" text="Previous" />
-      <Button fx:id="pauseButton" layoutX="280.0" layoutY="373.0" mnemonicParsing="false" onAction="#pauseMedia" prefHeight="26.0" prefWidth="54.0" text="Pause" />
-      <Button fx:id="playButton" layoutX="226.0" layoutY="373.0" mnemonicParsing="false" onAction="#playMedia" prefHeight="26.0" prefWidth="54.0" text="Play" />
-      <Button fx:id="nextButton" layoutX="391.0" layoutY="373.0" mnemonicParsing="false" onAction="#nextMedia" prefHeight="26.0" prefWidth="54.0" text="Next" />
-      <ProgressBar fx:id="songProgressBar" layoutX="4.0" layoutY="323.0" prefHeight="20.0" prefWidth="600.0" progress="0.0" />
-      <Slider fx:id="volumeSlider" layoutX="14.0" layoutY="118.0" orientation="VERTICAL" />
-      <Button fx:id="restartButton" layoutX="335.0" layoutY="373.0" mnemonicParsing="false" onAction="#restartMedia" text="Restart" />
-      <Label layoutX="181.0" layoutY="70.0" text="Currently Playing: None">
+      <Button fx:id="previousButton" layoutX="350.0" layoutY="554.0" mnemonicParsing="false" onAction="#previousMedia" prefHeight="30.0" prefWidth="65.0" text="Previous" />
+      <Button fx:id="pauseButton" layoutX="475.0" layoutY="554.0" mnemonicParsing="false" onAction="#pauseMedia" prefHeight="30.0" prefWidth="60.0" text="Pause" />
+      <Button fx:id="playButton" layoutX="415.0" layoutY="554.0" mnemonicParsing="false" onAction="#playMedia" prefHeight="30.0" prefWidth="60.0" text="Play" />
+      <Button fx:id="nextButton" layoutX="595.0" layoutY="554.0" mnemonicParsing="false" onAction="#nextMedia" prefHeight="30.0" prefWidth="55.0" text="Next" />
+      <ProgressBar fx:id="songProgressBar" layoutX="250.0" layoutY="530.0" prefHeight="10.0" prefWidth="500.0" progress="0.0" />
+      <Slider fx:id="volumeSlider" layoutX="28.0" layoutY="220.0" orientation="VERTICAL" prefHeight="150.0" prefWidth="18.0" />
+      <Button fx:id="deleteButton" layoutX="535.0" layoutY="554.0" mnemonicParsing="false" onAction="#deleteMedia" prefHeight="30.0" prefWidth="60.0" text="Delete" />
+      <Label fx:id="songLabel" contentDisplay="CENTER" layoutX="367.0" layoutY="445.0" minHeight="30.0" minWidth="370.0" prefHeight="30.0" prefWidth="360.0" textFill="WHITE">
          <font>
-            <Font size="25.0" />
+            <Font name="Impact" size="15.0" />
          </font></Label>
-      <Label layoutX="245.0" layoutY="14.0" text="Music Player" textFill="#0085e4">
+      <Label fx:id="currentPlaylistText" layoutX="414.0" layoutY="70.0" text="Default Playlist" textFill="WHITE">
          <font>
-            <Font name="Arial Rounded MT Bold" size="19.0" />
+            <Font name="Heiti TC Light" size="33.0" />
          </font>
       </Label>
+      <TextField fx:id="songField" layoutX="800.0" layoutY="1.0" prefHeight="20.0" prefWidth="100.0" />
+      <Button fx:id="addNewSongButton" layoutX="900.0" mnemonicParsing="false" onAction="#addSong" prefHeight="20.0" text="Add New Song" />
+      <ImageView fx:id="myImageView" fitHeight="250.0" fitWidth="370.0" layoutX="367.0" layoutY="182.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="myprevImageView" fitHeight="180.0" fitWidth="260.0" layoutX="120.0" layoutY="220.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="mynextImageView" fitHeight="180.0" fitWidth="260.0" layoutX="680.0" layoutY="220.0" pickOnBounds="true" preserveRatio="true" />
+      <Label fx:id="prevSongLabel" contentDisplay="CENTER" layoutX="120.0" layoutY="445.0" minHeight="30.0" minWidth="260.0" prefHeight="30.0" prefWidth="260.0" textAlignment="CENTER" textFill="WHITE">
+         <font>
+            <Font name="Impact" size="15.0" />
+         </font></Label>
+      <Label fx:id="nextSongLabel" contentDisplay="CENTER" layoutX="680.0" layoutY="445.0" minHeight="30.0" minWidth="260.0" prefHeight="30.0" prefWidth="260.0" textAlignment="CENTER" textFill="WHITE">
+         <font>
+            <Font name="Impact" size="15.0" />
+         </font></Label>
+      <Label fx:id="prevArtistLabel" contentDisplay="CENTER" layoutX="120.0" layoutY="470.0" prefHeight="30.0" prefWidth="260.0" textAlignment="CENTER" textFill="WHITE">
+         <font>
+            <Font size="10.0" />
+         </font></Label>
+      <Label fx:id="currentArtistLabel" contentDisplay="CENTER" layoutX="367.0" layoutY="470.0" prefHeight="30.0" prefWidth="370.0" textAlignment="CENTER" textFill="WHITE">
+         <font>
+            <Font size="10.0" />
+         </font></Label>
+      <Label fx:id="nextArtistLabel" contentDisplay="CENTER" layoutX="680.0" layoutY="470.0" prefHeight="30.0" prefWidth="260.0" textAlignment="CENTER" textFill="WHITE">
+         <font>
+            <Font size="10.0" />
+         </font></Label>
+      <Label fx:id="previous" contentDisplay="CENTER" layoutX="120.0" layoutY="422.0" prefHeight="30.0" prefWidth="100.0" text="Previous" textAlignment="CENTER" textFill="WHITE">
+         <font>
+            <Font size="10.0" />
+         </font></Label>
+      <Label fx:id="next" contentDisplay="CENTER" layoutX="680.0" layoutY="422.0" prefHeight="30.0" prefWidth="100.0" text="Next" textAlignment="CENTER" textFill="WHITE">
+      <font>
+      <Font size="10.0" />
+      </font></Label>
+      <TextField fx:id="newPlaylistText" layoutY="1.0" prefHeight="20.0" prefWidth="100.0" />
+      <Button fx:id="newPlaylistButton" layoutX="100.0" layoutY="1.0" mnemonicParsing="false" onAction="#addPlaylist" prefHeight="20.0" text="Create New Playlist" />
+      <MenuBar fx:id="choosePlaylistMenu" layoutX="430.0" layoutY="1.0" prefHeight="20.0">
+        <menus>
+          <Menu mnemonicParsing="false" text="Choose Playlist">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Default Playlist" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
    </children>
+   <effect>
+      <ColorAdjust />
+   </effect>
 </AnchorPane>
