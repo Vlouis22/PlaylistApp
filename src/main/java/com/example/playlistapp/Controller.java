@@ -5,10 +5,11 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 
 import java.io.IOException;
 import java.net.URL;
@@ -16,6 +17,7 @@ import java.util.*;
 
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -24,14 +26,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 public class Controller implements Initializable {
+    public AnchorPane myPane;
 
     // todo
     // add light mode and dark mode
     // play next song automatically
     // add splash background to playlist name
+    // make the background the music that is playing (make it almost invisible)
 
-    @FXML
-    private Pane pane;
+    //@FXML
+    //private AnchorPane pane;
     @FXML
     private Label songLabel;
 
@@ -112,12 +116,15 @@ public class Controller implements Initializable {
         Menu playlistMenu = (Menu) choosePlaylistMenu.getMenus().get(0);
         playlistMenu.getItems().add(newMenuItem);
 
+        myPane = new AnchorPane();
         setDisplay();
+        setBackgroundIMG(new Image("https://e-cdns-images.dzcdn.net/images/artist/7432efa1fc1d9a1c5a7049512792b9fc/500x500-000000-80-0-0.jpg"));
+
 
         volumeSlider.valueProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
-                mediaPlayer.setVolume(volumeSlider.getValue()*0.01);
+                mediaPlayer.setVolume(volumeSlider.getValue() * 0.01);
             }
         });
     }
@@ -139,14 +146,19 @@ public class Controller implements Initializable {
             mediaPlayer = new MediaPlayer(media);
             this.mediaPlayer.play();
 
-        }
-        else{
+        } else {
             unvisible();
         }
     }
 
-    public void setDisplay(){
-        if (newPlaylist.getSize()>0) {
+    public void setDisplay() {
+        if (newPlaylist.getSize() != 0) {
+            if(songNumber > newPlaylist.getSize()){
+                songNumber = 1;
+            }
+            else if (songNumber < 1) {
+                songNumber = newPlaylist.getSize();
+            }
             System.out.println("Song number: " + songNumber);
             System.out.println("Playlist size: " + newPlaylist.getSize());
             System.out.println();
@@ -165,8 +177,8 @@ public class Controller implements Initializable {
             currentPlaylistText.setText(newPlaylist.name);
 
             visible();
-        }
-        else{
+
+        } else {
             unvisible();
 
             songLabel.setText("There's Nothing Holding Me Back");
@@ -181,9 +193,13 @@ public class Controller implements Initializable {
             mynextImageView.setImage(FutureImg);
             myprevImageView.setImage(RoodyImg);
 
+            //setBackgroundIMG(shawnImg);
+
             currentArtistLabel.setText("Shawn Mendes");
             nextArtistLabel.setText("Future");
             prevArtistLabel.setText("Roody Roodboy");
+
+            System.out.println(newPlaylist.getPlaylistName());
             currentPlaylistText.setText(newPlaylist.getPlaylistName());
 
             visible();
@@ -191,7 +207,8 @@ public class Controller implements Initializable {
         }
     }
 
-    public void visible(){
+
+    public void visible() {
         songLabel.setVisible(true);
         prevSongLabel.setVisible(true);
         nextSongLabel.setVisible(true);
@@ -203,7 +220,7 @@ public class Controller implements Initializable {
         showMenu();
     }
 
-    public void unvisible(){
+    public void unvisible() {
         songLabel.setVisible(false);
         prevSongLabel.setVisible(false);
         nextSongLabel.setVisible(false);
@@ -212,24 +229,25 @@ public class Controller implements Initializable {
         nextArtistLabel.setVisible(false);
         hideMenu();
     }
-    public void pauseMedia(){
+
+    public void pauseMedia() {
         cancelTimer();
         this.mediaPlayer.stop();
     }
 
-    public void showVolumeSlider(){
+    public void showVolumeSlider() {
         volumeSlider.setVisible(true);
         showMenu();
     }
 
-    public void hideVolumeSlider(){
+    public void hideVolumeSlider() {
         volumeSlider.setVisible(false);
         hideMenu();
     }
 
-    public void previousMedia(){
+    public void previousMedia() {
         this.mediaPlayer.stop();
-        if(running){
+        if (running) {
             cancelTimer();
         }
         songNumber--;
@@ -237,21 +255,20 @@ public class Controller implements Initializable {
         beginTimer();
     }
 
-    public void deleteMedia(){
+    public void deleteMedia() {
         if (newPlaylist.getSize() > 0) {
             newPlaylist.removeSong(newPlaylist.getCurrentSong(songNumber));
             playMedia();
             beginTimer();
-        }
-        else{
+        } else {
             unvisible();
             System.out.println("No songs to delete");
         }
     }
 
-    public void nextMedia(){
+    public void nextMedia() {
         this.mediaPlayer.stop();
-        if(running){
+        if (running) {
             cancelTimer();
         }
         songNumber++;
@@ -266,7 +283,7 @@ public class Controller implements Initializable {
                 running = true;
                 double current = mediaPlayer.getCurrentTime().toSeconds();
                 double end = media.getDuration().toSeconds();
-                songProgressBar.setProgress(current/end);
+                songProgressBar.setProgress(current / end);
 
                 if (Math.abs(current / end - 1.0) < 0.0001) {
                     cancelTimer();
@@ -281,19 +298,20 @@ public class Controller implements Initializable {
         timer.cancel();
     }
 
-    public void getPreviousImage(){
+    public void getPreviousImage() {
         String imageUrl = newPlaylist.getPrevImage(songNumber);
         Image myImage = new Image(imageUrl);
         myprevImageView.setImage(myImage);
     }
 
-    public void getCurrentImage(){
+    public void getCurrentImage() {
         String imageUrl = newPlaylist.getCurrentImage(songNumber);
         Image myImage = new Image(imageUrl);
         myImageView.setImage(myImage);
+
     }
 
-    public void getNextImage(){
+    public void getNextImage() {
         String imageUrl = newPlaylist.getNextImage(songNumber);
         Image myImage = new Image(imageUrl);
         mynextImageView.setImage(myImage);
@@ -334,10 +352,10 @@ public class Controller implements Initializable {
     }
 
     public void addSong() {
-        mediaPlayer.stop();
         if (songField.getText() != null) {
             getSong(songField.getText());
             songField.clear();
+            setDisplay();
         }
     }
 
@@ -346,15 +364,13 @@ public class Controller implements Initializable {
         MenuItem newMenuItem = new MenuItem(playlistName);
 
         newMenuItem.setOnAction(this::switchPlaylist);
-        Playlist newPlaylist = new Playlist(playlistName);
+        newPlaylist = new Playlist(playlistName);
         playlistArray.add(newPlaylist);
         newPlaylistText.clear();
 
         Menu playlistMenu = (Menu) choosePlaylistMenu.getMenus().get(0);
-        newMenuItem.setOnAction(this::handlePlaylistSelection); // Set the event handler
+        newMenuItem.setOnAction(this::handlePlaylistSelection);
         playlistMenu.getItems().add(newMenuItem);
-
-        setDisplay();
 
         if (playlistArray.size() > 0) {
             int playlistIndex = playlistArray.size() - 1;
@@ -362,16 +378,17 @@ public class Controller implements Initializable {
             newPlaylist = playlistArray.get(playlistIndex);
             System.out.println("Switched to playlist: " + newPlaylist.name);
         }
+        showMenu();
         setDisplay();
         playMedia();
     }
 
-    public void deletePlaylist(){
+    public void deletePlaylist() {
         pauseMedia();
         String playlistName = newPlaylistText.getText();
-        if(playlistArray.size()>1){
+        if (playlistArray.size() > 1) {
             Menu playlistMenu = (Menu) choosePlaylistMenu.getMenus().get(0);
-            int length = playlistArray.size()-1;
+            int length = playlistArray.size() - 1;
             playlistMenu.getItems().remove(length);
             playlistArray.remove(length);
             newPlaylist = playlistArray.get(0);
@@ -404,9 +421,8 @@ public class Controller implements Initializable {
         if (selectedPlaylist != null) {
             newPlaylist = selectedPlaylist;
             setDisplay();
-            System.out.println("Changed playlist to: " + newPlaylist.getPlaylistName());
-        }
-        else{
+            //System.out.println("Changed playlist to: " + newPlaylist.getPlaylistName());
+        } else {
             setDisplay();
             showVolumeSlider();
 
@@ -424,7 +440,7 @@ public class Controller implements Initializable {
         return null;
     }
 
-    private void hideMenu(){
+    private void hideMenu() {
         newPlaylistButton.setVisible(false);
         newPlaylistText.setVisible(false);
         songField.setVisible(false);
@@ -432,7 +448,8 @@ public class Controller implements Initializable {
         addNewSongButton.setVisible(false);
 
     }
-    private void showMenu(){
+
+    private void showMenu() {
 
         addNewSongButton.setVisible(true);
         newPlaylistButton.setVisible(true);
@@ -443,10 +460,31 @@ public class Controller implements Initializable {
     }
 
     @FXML
-    private void shufflePlaylist(){
+    private void shufflePlaylist() {
         newPlaylist.shuffle();
         pauseMedia();
         setDisplay();
         playMedia();
+    }
+
+
+    public void setBackgroundIMG(Image image) {
+        BackgroundImage backgroundImage = new BackgroundImage(
+                image,
+                BackgroundRepeat.NO_REPEAT,  // repeat X
+                BackgroundRepeat.NO_REPEAT,  // repeat Y
+                BackgroundPosition.CENTER,   // position
+                new BackgroundSize(
+                        100,   // width  = 100%
+                        100,   // height = 100%
+                        true,  // width is percentage
+                        true,  // height is percentage
+                        true,  // contain image within bounds
+                        true   // cover all of Region content area
+                )
+        );
+
+        Background background = new Background(backgroundImage);
+        this.myPane.setBackground(background);
     }
 }

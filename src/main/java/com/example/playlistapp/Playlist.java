@@ -20,7 +20,10 @@ public class Playlist {
 
     public void removeSong(Song song){
         if (songs.contains(song)){
-            songs.pop();
+            songs.remove(song);
+        }
+        else{
+            System.out.println("Cannot Delete Song");
         }
     }
 
