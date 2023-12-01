@@ -1,5 +1,7 @@
 package com.example.playlistapp;
 import com.fasterxml.jackson.databind.JsonNode;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -32,6 +34,9 @@ public class Controller implements Initializable {
 
     @FXML
     private Label prevSongLabel;
+
+    @FXML
+    private Button addNewSongButton;
 
     @FXML
     private TextField newPlaylistText;
@@ -67,9 +72,10 @@ public class Controller implements Initializable {
     public Button previousButton, nextButton, pauseButton, playButton, deleteButton, newPlaylistButton;
 
     private Timer timer;
-    private TimerTask task;
     private boolean running;
     private int songNumber;
+
+    private TimerTask task;
     private Playlist newPlaylist;
 
     private ArrayList<Playlist> playlistArray;
@@ -90,20 +96,30 @@ public class Controller implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         String previewUrl = "https://cdns-preview-8.dzcdn.net/stream/c-8b7aaf57e2aa777e6c64da14ad741754-5.mp3";
         songNumber = 0;
-        currentPlaylistText.setText("");
-        Media media = new Media(previewUrl);
+        media = new Media(previewUrl);
         mediaPlayer = new MediaPlayer(media);
         volumeSlider.setVisible(false);
-        previous.setVisible(false);
-        next.setVisible(false);
         playlistArray = new ArrayList<>();
         newPlaylist = new Playlist("Default Playlist");
+        currentPlaylistText.setText("Default Playlist");
 
-        // Image myImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("apple-music.png")));
-        // myprevImageView.setImage(myImage);
+        songLabel.setText("24K Magic");
+        Image newImage = new Image("https://e-cdns-images.dzcdn.net/images/artist/7f3c0956357c326b2db2cf436f1dc8c5/500x500-000000-80-0-0.jpg");
+        myImageView.setImage(newImage);
+        mynextImageView.setImage(newImage);
+        myprevImageView.setImage(newImage);
+        currentArtistLabel.setText("Bruno Mars");
+
+        volumeSlider.valueProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
+                mediaPlayer.setVolume(volumeSlider.getValue()*0.01);
+            }
+        });
     }
 
     public void playMedia() {
+        beginTimer();
         pauseMedia();
         if (newPlaylist.getSize() != 0) {
             if (songNumber > newPlaylist.getSize()) {
@@ -111,26 +127,11 @@ public class Controller implements Initializable {
             } else if (songNumber < 1) {
                 songNumber = newPlaylist.getSize();
             }
-            System.out.println("Song number: " + songNumber);
-            System.out.println("Playlist size: "+newPlaylist.getSize());
-            System.out.println();
 
-            getCurrentImage();
-            getPreviousImage();
-            getNextImage();
-
-            songLabel.setText(newPlaylist.getCurrentLabel(songNumber));
-            prevSongLabel.setText(newPlaylist.getPrevLabel(songNumber));
-            nextSongLabel.setText(newPlaylist.getNextLabel(songNumber));
-            currentArtistLabel.setText(newPlaylist.getCurrentArtist(songNumber));
-            prevArtistLabel.setText(newPlaylist.getPrevArtist(songNumber));
-            nextArtistLabel.setText(newPlaylist.getNextArtist(songNumber));
-            currentPlaylistText.setText(newPlaylist.name);
-
-            visible();
+            setDisplay();
 
             String url = newPlaylist.playSong(songNumber - 1).toString();
-            Media media = new Media(url);
+            media = new Media(url);
             mediaPlayer = new MediaPlayer(media);
             this.mediaPlayer.play();
 
@@ -138,6 +139,27 @@ public class Controller implements Initializable {
         else{
             unvisible();
         }
+    }
+
+    public void setDisplay(){
+        System.out.println("Song number: " + songNumber);
+        System.out.println("Playlist size: "+newPlaylist.getSize());
+        System.out.println();
+
+
+        getCurrentImage();
+        getPreviousImage();
+        getNextImage();
+
+        songLabel.setText(newPlaylist.getCurrentLabel(songNumber));
+        prevSongLabel.setText(newPlaylist.getPrevLabel(songNumber));
+        nextSongLabel.setText(newPlaylist.getNextLabel(songNumber));
+        currentArtistLabel.setText(newPlaylist.getCurrentArtist(songNumber));
+        prevArtistLabel.setText(newPlaylist.getPrevArtist(songNumber));
+        nextArtistLabel.setText(newPlaylist.getNextArtist(songNumber));
+        currentPlaylistText.setText(newPlaylist.name);
+
+        visible();
     }
 
     public void visible(){
@@ -160,47 +182,72 @@ public class Controller implements Initializable {
         nextArtistLabel.setVisible(false);
     }
     public void pauseMedia(){
+        //cancelTimer();
         this.mediaPlayer.stop();
     }
 
     public void showVolumeSlider(){
         volumeSlider.setVisible(true);
+        showMenu();
     }
 
     public void hideVolumeSlider(){
         volumeSlider.setVisible(false);
+        hideMenu();
     }
 
     public void previousMedia(){
         this.mediaPlayer.stop();
+        if(running){
+            cancelTimer();
+        }
         songNumber--;
         playMedia();
+        beginTimer();
     }
 
     public void deleteMedia(){
         if (newPlaylist.getSize() > 0) {
             newPlaylist.removeSong(newPlaylist.getCurrentSong(songNumber));
             playMedia();
+            beginTimer();
         }
         else{
             unvisible();
-            System.out.println("No sons to delete");
+            System.out.println("No songs to delete");
         }
     }
 
     public void nextMedia(){
         this.mediaPlayer.stop();
+        if(running){
+            cancelTimer();
+        }
         songNumber++;
         playMedia();
     }
 
+    // timer for the song progress bar
+    public void beginTimer() {
+        timer = new Timer();
+        task = new TimerTask() {
+            public void run() {
+                running = true;
+                double current = mediaPlayer.getCurrentTime().toSeconds();
+                double end = media.getDuration().toSeconds();
+                songProgressBar.setProgress(current/end);
 
-    public void beginTimer(){
-
+                if (current / end == 1) {
+                    cancelTimer();
+                }
+            }
+        };
+        timer.scheduleAtFixedRate(task, 1000, 1000);
     }
 
     public void cancelTimer() {
-
+        running = false;
+        timer.cancel();
     }
 
     public void getPreviousImage(){
@@ -220,19 +267,7 @@ public class Controller implements Initializable {
         Image myImage = new Image(imageUrl);
         mynextImageView.setImage(myImage);
     }
-
-    public void getPreviousMusicName(){
-        // everytime you click on a button that changes the music or when the music chanes by itself
-        // all image and music name methods should be called
-    }
-    public void getCurrentMusicName(){
-
-    }
-    public void getNextMusicName(){
-
-    }
-
-
+    // Api Call => Gets music from Deezer and allows you to search and play any music
     public void getSong(String songName) {
         OkHttpClient client = new OkHttpClient();
         String stringUrl = "https://deezerdevs-deezer.p.rapidapi.com/search?q=";
@@ -311,5 +346,18 @@ public class Controller implements Initializable {
             }
         }
         return null;
+    }
+
+    private void hideMenu(){
+        newPlaylistButton.setVisible(false);
+        newPlaylistText.setVisible(false);
+        songField.setVisible(false);
+        addNewSongButton.setVisible(false);
+    }
+    private void showMenu(){
+        newPlaylistButton.setVisible(true);
+        newPlaylistText.setVisible(true);
+        songField.setVisible(true);
+        addNewSongButton.setVisible(true);
     }
 }
