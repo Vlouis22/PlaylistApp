@@ -19,7 +19,6 @@ public class HelloApplication extends Application {
     // removing a song from the playlist should also remove the image from the image list (possibly a doubly linked list also)
     // because when displaying a song using an index, we should use that same index for the song, otherwise it won't work
 
-    // add a reset button and delete the pause button
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("Scene.fxml"));

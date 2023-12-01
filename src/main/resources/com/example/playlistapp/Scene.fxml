@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMouseEntered="#showVolumeSlider" onMouseExited="#hideVolumeSlider" onScrollFinished="#hideVolumeSlider" prefHeight="600.0" prefWidth="940.0" style="-fx-background-color: #262626;" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.playlistapp.Controller">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="600" minWidth="900" onContextMenuRequested="#showVolumeSlider" onDragDetected="#showVolumeSlider" onDragOver="#showVolumeSlider" onInputMethodTextChanged="#showVolumeSlider" onKeyPressed="#showVolumeSlider" onMouseClicked="#showVolumeSlider" onMouseDragEntered="#showVolumeSlider" onMouseDragOver="#showVolumeSlider" onMouseDragReleased="#showVolumeSlider" onMouseDragged="#showVolumeSlider" onMouseEntered="#showVolumeSlider" onMouseExited="#hideVolumeSlider" onMouseMoved="#showVolumeSlider" onMousePressed="#showVolumeSlider" onMouseReleased="#showVolumeSlider" onScroll="#showVolumeSlider" onScrollStarted="#showVolumeSlider" onSwipeUp="#showVolumeSlider" onTouchMoved="#showVolumeSlider" prefHeight="600.0" prefWidth="940.0" style="-fx-background-color: #262626;" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.playlistapp.Controller">
    <children>
       <Button fx:id="previousButton" layoutX="320.0" layoutY="554.0" mnemonicParsing="false" onAction="#previousMedia" prefHeight="30.0" prefWidth="65.0" text="Previous" />
       <Button fx:id="pauseButton" layoutX="445.0" layoutY="554.0" mnemonicParsing="false" onAction="#pauseMedia" prefHeight="30.0" prefWidth="60.0" text="Pause" />
@@ -24,8 +24,8 @@
             <Font name="Heiti TC Light" size="33.0" />
          </font>
       </Label>
-      <TextField fx:id="songField" layoutX="740.0" layoutY="1.0" prefHeight="20.0" prefWidth="100.0" />
-      <Button fx:id="addNewSongButton" layoutX="840.0" layoutY="1.0" mnemonicParsing="false" onAction="#addSong" prefHeight="20.0" text="Add New Song" />
+      <TextField fx:id="songField" layoutX="790.0" layoutY="1.0" prefHeight="30.0" prefWidth="150.0" />
+      <Button fx:id="addNewSongButton" layoutX="665.0" layoutY="1.0" mnemonicParsing="false" onAction="#addSong" prefHeight="30.0" prefWidth="125.0" text="Add New Song" />
       <ImageView fx:id="myImageView" fitHeight="250.0" fitWidth="370.0" layoutX="337.0" layoutY="182.0" pickOnBounds="true" preserveRatio="true" />
       <ImageView fx:id="myprevImageView" fitHeight="180.0" fitWidth="260.0" layoutX="90.0" layoutY="220.0" pickOnBounds="true" preserveRatio="true" />
       <ImageView fx:id="mynextImageView" fitHeight="180.0" fitWidth="260.0" layoutX="660.0" layoutY="220.0" pickOnBounds="true" preserveRatio="true" />
@@ -57,17 +57,18 @@
       <font>
       <Font size="10.0" />
       </font></Label>
-      <TextField fx:id="newPlaylistText" layoutY="1.0" prefHeight="20.0" prefWidth="100.0" />
-      <Button fx:id="newPlaylistButton" layoutX="100.0" layoutY="1.0" mnemonicParsing="false" onAction="#addPlaylist" prefHeight="20.0" prefWidth="125.0" text="Create New Playlist" />
-      <MenuBar fx:id="choosePlaylistMenu" layoutX="392.0" prefHeight="20.0">
+      <TextField fx:id="newPlaylistText" layoutY="1.0" prefHeight="30.0" prefWidth="150.0" />
+      <Button fx:id="newPlaylistButton" layoutX="150.0" layoutY="1.0" mnemonicParsing="false" onAction="#addPlaylist" prefHeight="30.0" prefWidth="125.0" text="Create New Playlist" />
+      <MenuBar fx:id="choosePlaylistMenu" layoutX="415.0" layoutY="1.0" onContextMenuRequested="#showVolumeSlider" onDragDetected="#showVolumeSlider" onInputMethodTextChanged="#showVolumeSlider" onMouseClicked="#showVolumeSlider" onMouseEntered="#showVolumeSlider" prefHeight="31.0" prefWidth="125.0">
         <menus>
           <Menu mnemonicParsing="false" text="Switch Playlist">
             <items>
-              <MenuItem mnemonicParsing="false" text="Default Playlist" />
             </items>
           </Menu>
         </menus>
       </MenuBar>
+      <Button fx:id="shuffleButton" layoutX="540.0" layoutY="1.0" mnemonicParsing="false" onAction="#shufflePlaylist" prefHeight="30.0" prefWidth="125.0" text="Shuffle Playlist" />
+      <Button fx:id="deletePlaylistButton" layoutX="275.0" layoutY="1.0" mnemonicParsing="false" onAction="#deletePlaylist" prefHeight="30.0" prefWidth="140.0" text="Delete Current Playlist" />
    </children>
    <effect>
       <ColorAdjust />

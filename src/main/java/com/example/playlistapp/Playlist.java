@@ -1,5 +1,6 @@
 package com.example.playlistapp;
 
+import java.util.Collections;
 import java.util.LinkedList;
 
 public class Playlist {
@@ -112,6 +113,10 @@ public class Playlist {
 
     public int getSize(){
         return songs.size();
+    }
+
+    public void shuffle(){
+        Collections.shuffle(songs);
     }
 }
 

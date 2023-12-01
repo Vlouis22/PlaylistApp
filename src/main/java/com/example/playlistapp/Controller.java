@@ -25,7 +25,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Controller implements Initializable {
 
+    // todo
     // add light mode and dark mode
+    // play next song automatically
+    // add splash background to playlist name
 
     @FXML
     private Pane pane;
@@ -69,7 +72,8 @@ public class Controller implements Initializable {
     @FXML
     private Label currentPlaylistText;
     private MediaPlayer mediaPlayer;
-    public Button previousButton, nextButton, pauseButton, playButton, deleteButton, newPlaylistButton;
+    public Button previousButton, nextButton, pauseButton, playButton, deleteButton;
+    public Button newPlaylistButton, shuffleButton, deletePlaylistButton;
 
     private Timer timer;
     private boolean running;
@@ -101,14 +105,14 @@ public class Controller implements Initializable {
         volumeSlider.setVisible(false);
         playlistArray = new ArrayList<>();
         newPlaylist = new Playlist("Default Playlist");
-        currentPlaylistText.setText("Default Playlist");
+        playlistArray.add(newPlaylist);
 
-        songLabel.setText("24K Magic");
-        Image newImage = new Image("https://e-cdns-images.dzcdn.net/images/artist/7f3c0956357c326b2db2cf436f1dc8c5/500x500-000000-80-0-0.jpg");
-        myImageView.setImage(newImage);
-        mynextImageView.setImage(newImage);
-        myprevImageView.setImage(newImage);
-        currentArtistLabel.setText("Bruno Mars");
+        MenuItem newMenuItem = new MenuItem("Default Playlist");
+        newMenuItem.setOnAction(this::switchPlaylist);
+        Menu playlistMenu = (Menu) choosePlaylistMenu.getMenus().get(0);
+        playlistMenu.getItems().add(newMenuItem);
+
+        setDisplay();
 
         volumeSlider.valueProperty().addListener(new ChangeListener<Number>() {
             @Override
@@ -142,24 +146,49 @@ public class Controller implements Initializable {
     }
 
     public void setDisplay(){
-        System.out.println("Song number: " + songNumber);
-        System.out.println("Playlist size: "+newPlaylist.getSize());
-        System.out.println();
+        if (newPlaylist.getSize()>0) {
+            System.out.println("Song number: " + songNumber);
+            System.out.println("Playlist size: " + newPlaylist.getSize());
+            System.out.println();
 
 
-        getCurrentImage();
-        getPreviousImage();
-        getNextImage();
+            getCurrentImage();
+            getPreviousImage();
+            getNextImage();
 
-        songLabel.setText(newPlaylist.getCurrentLabel(songNumber));
-        prevSongLabel.setText(newPlaylist.getPrevLabel(songNumber));
-        nextSongLabel.setText(newPlaylist.getNextLabel(songNumber));
-        currentArtistLabel.setText(newPlaylist.getCurrentArtist(songNumber));
-        prevArtistLabel.setText(newPlaylist.getPrevArtist(songNumber));
-        nextArtistLabel.setText(newPlaylist.getNextArtist(songNumber));
-        currentPlaylistText.setText(newPlaylist.name);
+            songLabel.setText(newPlaylist.getCurrentLabel(songNumber));
+            prevSongLabel.setText(newPlaylist.getPrevLabel(songNumber));
+            nextSongLabel.setText(newPlaylist.getNextLabel(songNumber));
+            currentArtistLabel.setText(newPlaylist.getCurrentArtist(songNumber));
+            prevArtistLabel.setText(newPlaylist.getPrevArtist(songNumber));
+            nextArtistLabel.setText(newPlaylist.getNextArtist(songNumber));
+            currentPlaylistText.setText(newPlaylist.name);
 
-        visible();
+            visible();
+        }
+        else{
+            unvisible();
+
+            songLabel.setText("There's Nothing Holding Me Back");
+            prevSongLabel.setText("Tranble");
+            nextSongLabel.setText("Mask Off");
+
+            Image shawnImg = new Image("https://e-cdns-images.dzcdn.net/images/artist/7432efa1fc1d9a1c5a7049512792b9fc/500x500-000000-80-0-0.jpg");
+            Image FutureImg = new Image("https://e-cdns-images.dzcdn.net/images/artist/f24795f13743283ddc49c871bc96e836/500x500-000000-80-0-0.jpg");
+            Image RoodyImg = new Image("https://e-cdns-images.dzcdn.net/images/artist/72ae8a7ced6b91b04b095fa8e1ec754c/500x500-000000-80-0-0.jpg");
+
+            myImageView.setImage(shawnImg);
+            mynextImageView.setImage(FutureImg);
+            myprevImageView.setImage(RoodyImg);
+
+            currentArtistLabel.setText("Shawn Mendes");
+            nextArtistLabel.setText("Future");
+            prevArtistLabel.setText("Roody Roodboy");
+            currentPlaylistText.setText(newPlaylist.getPlaylistName());
+
+            visible();
+
+        }
     }
 
     public void visible(){
@@ -171,6 +200,7 @@ public class Controller implements Initializable {
         nextArtistLabel.setVisible(true);
         previous.setVisible(true);
         next.setVisible(true);
+        showMenu();
     }
 
     public void unvisible(){
@@ -180,9 +210,10 @@ public class Controller implements Initializable {
         currentArtistLabel.setVisible(false);
         prevArtistLabel.setVisible(false);
         nextArtistLabel.setVisible(false);
+        hideMenu();
     }
     public void pauseMedia(){
-        //cancelTimer();
+        cancelTimer();
         this.mediaPlayer.stop();
     }
 
@@ -237,7 +268,7 @@ public class Controller implements Initializable {
                 double end = media.getDuration().toSeconds();
                 songProgressBar.setProgress(current/end);
 
-                if (current / end == 1) {
+                if (Math.abs(current / end - 1.0) < 0.0001) {
                     cancelTimer();
                 }
             }
@@ -267,6 +298,7 @@ public class Controller implements Initializable {
         Image myImage = new Image(imageUrl);
         mynextImageView.setImage(myImage);
     }
+
     // Api Call => Gets music from Deezer and allows you to search and play any music
     public void getSong(String songName) {
         OkHttpClient client = new OkHttpClient();
@@ -292,6 +324,8 @@ public class Controller implements Initializable {
                 String artist = track.path("artist").path("name").asText();
                 Song song = new Song(title, previewUrl, imageUrl, artist);
                 newPlaylist.addSong(song);
+                System.out.println(imageUrl);
+
                 break;
             }
         } catch (IOException e) {
@@ -305,27 +339,63 @@ public class Controller implements Initializable {
             getSong(songField.getText());
             songField.clear();
         }
-        playMedia();
-        pauseMedia();
     }
 
     public void addPlaylist() {
         String playlistName = newPlaylistText.getText();
         MenuItem newMenuItem = new MenuItem(playlistName);
+
+        newMenuItem.setOnAction(this::switchPlaylist);
         Playlist newPlaylist = new Playlist(playlistName);
         playlistArray.add(newPlaylist);
         newPlaylistText.clear();
+
         Menu playlistMenu = (Menu) choosePlaylistMenu.getMenus().get(0);
-        newMenuItem.setOnAction(event -> handlePlaylistSelection(event)); // Set the event handler
+        newMenuItem.setOnAction(this::handlePlaylistSelection); // Set the event handler
         playlistMenu.getItems().add(newMenuItem);
 
-        if (playlistArray.size() > 1) {
+        setDisplay();
+
+        if (playlistArray.size() > 0) {
             int playlistIndex = playlistArray.size() - 1;
             playlistArray.get(playlistIndex).displayPlaylist();
             newPlaylist = playlistArray.get(playlistIndex);
-            System.out.println("Switched to playlist: " + newPlaylist);
+            System.out.println("Switched to playlist: " + newPlaylist.name);
+        }
+        setDisplay();
+        playMedia();
+    }
+
+    public void deletePlaylist(){
+        pauseMedia();
+        String playlistName = newPlaylistText.getText();
+        if(playlistArray.size()>1){
+            Menu playlistMenu = (Menu) choosePlaylistMenu.getMenus().get(0);
+            int length = playlistArray.size()-1;
+            playlistMenu.getItems().remove(length);
+            playlistArray.remove(length);
+            newPlaylist = playlistArray.get(0);
+            System.out.println("New playlist name: ");
+            System.out.println(newPlaylist.getPlaylistName());
+            setDisplay();
         }
         playMedia();
+    }
+
+    public void switchPlaylist(ActionEvent event) {
+        MenuItem menuItem = (MenuItem) event.getSource();
+        String selectedPlaylistName = menuItem.getText();
+        Playlist selectedPlaylist = getPlaylistByName(selectedPlaylistName);
+
+        if (selectedPlaylist != null) {
+            this.newPlaylist = selectedPlaylist;
+            playMedia();
+            System.out.println("Switched to playlist: " + newPlaylist.getPlaylistName());
+        }
+
+        setDisplay();
+        showMenu();
+        showVolumeSlider();
     }
 
     public void handlePlaylistSelection(ActionEvent event) {
@@ -333,7 +403,13 @@ public class Controller implements Initializable {
         Playlist selectedPlaylist = getPlaylistByName(menuItem.getText());
         if (selectedPlaylist != null) {
             newPlaylist = selectedPlaylist;
-            System.out.println("Changed playlist to: " + newPlaylist);
+            setDisplay();
+            System.out.println("Changed playlist to: " + newPlaylist.getPlaylistName());
+        }
+        else{
+            setDisplay();
+            showVolumeSlider();
+
         }
     }
 
@@ -353,11 +429,24 @@ public class Controller implements Initializable {
         newPlaylistText.setVisible(false);
         songField.setVisible(false);
         addNewSongButton.setVisible(false);
+        addNewSongButton.setVisible(false);
+
     }
     private void showMenu(){
+
+        addNewSongButton.setVisible(true);
         newPlaylistButton.setVisible(true);
         newPlaylistText.setVisible(true);
         songField.setVisible(true);
         addNewSongButton.setVisible(true);
+
+    }
+
+    @FXML
+    private void shufflePlaylist(){
+        newPlaylist.shuffle();
+        pauseMedia();
+        setDisplay();
+        playMedia();
     }
 }
