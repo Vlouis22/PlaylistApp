@@ -224,9 +224,11 @@ public class Controller implements Initializable {
     }
 
     public void pauseMedia() {
-        this.mediaPlayer.stop();
-        running = false;
-        cancelTimer();
+        if(newPlaylist.getSize()>0) {
+            this.mediaPlayer.stop();
+            running = false;
+            cancelTimer();
+        }
     }
 
     public void showVolumeSlider() {
@@ -240,13 +242,13 @@ public class Controller implements Initializable {
     }
 
     public void previousMedia() {
-        this.mediaPlayer.stop();
-        //running = true;
-        cancelTimer();
-        songNumber--;
-        beginTimer();
-        playMedia();
-
+        if(newPlaylist.getSize()>0) {
+            this.mediaPlayer.stop();
+            cancelTimer();
+            songNumber--;
+            beginTimer();
+            playMedia();
+        }
     }
 
     public void deleteMedia() {
@@ -263,14 +265,16 @@ public class Controller implements Initializable {
     }
 
     public void nextMedia() {
-        cancelTimer();
-        this.mediaPlayer.stop();
-        if (running) {
+        if(newPlaylist.getSize()>0) {
             cancelTimer();
+            this.mediaPlayer.stop();
+            if (running) {
+                cancelTimer();
+            }
+            songNumber++;
+            playMedia();
+            beginTimer();
         }
-        songNumber++;
-        playMedia();
-        beginTimer();
     }
 
     // timer for the song progress bar
@@ -357,22 +361,26 @@ public class Controller implements Initializable {
 
     public void addPlaylist() {
         String playlistName = newPlaylistText.getText();
-        MenuItem newMenuItem = new MenuItem(playlistName);
+        if(!Objects.equals(playlistName, "") || Objects.isNull(playlistName)) {
+            System.out.println("playlist name: "+playlistName);
+            System.out.println(Objects.equals(playlistName, ""));
+            MenuItem newMenuItem = new MenuItem(playlistName);
 
-        newMenuItem.setOnAction(this::switchPlaylist);
-        newPlaylist = new Playlist(playlistName);
-        playlistArray.add(newPlaylist);
-        newPlaylistText.clear();
+            newMenuItem.setOnAction(this::switchPlaylist);
+            newPlaylist = new Playlist(playlistName);
+            playlistArray.add(newPlaylist);
+            newPlaylistText.clear();
 
-        Menu playlistMenu = (Menu) choosePlaylistMenu.getMenus().get(0);
-        newMenuItem.setOnAction(this::handlePlaylistSelection);
-        playlistMenu.getItems().add(newMenuItem);
+            Menu playlistMenu = (Menu) choosePlaylistMenu.getMenus().get(0);
+            newMenuItem.setOnAction(this::handlePlaylistSelection);
+            playlistMenu.getItems().add(newMenuItem);
 
-        if (playlistArray.size() > 0) {
-            int playlistIndex = playlistArray.size() - 1;
-            playlistArray.get(playlistIndex).displayPlaylist();
-            newPlaylist = playlistArray.get(playlistIndex);
-            System.out.println("Switched to playlist: " + newPlaylist.name);
+            if (playlistArray.size() > 0) {
+                int playlistIndex = playlistArray.size() - 1;
+                playlistArray.get(playlistIndex).displayPlaylist();
+                newPlaylist = playlistArray.get(playlistIndex);
+                System.out.println("Switched to playlist: " + newPlaylist.name);
+            }
         }
         showMenu();
         setDisplay();
