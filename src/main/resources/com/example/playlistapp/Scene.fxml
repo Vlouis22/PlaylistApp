@@ -19,7 +19,7 @@
          <font>
             <Font name="Impact" size="15.0" />
          </font></Label>
-      <Label fx:id="currentPlaylistText" layoutX="337.0" layoutY="74.0" text="Default Playlist" textFill="WHITE">
+      <Label fx:id="currentPlaylistText" alignment="CENTER" contentDisplay="CENTER" layoutX="275.0" layoutY="67.0" minWidth="370.0" prefWidth="370.0" text="Default Playlist" textAlignment="CENTER" textFill="WHITE" wrapText="true">
          <font>
             <Font name="Heiti TC Light" size="33.0" />
          </font>

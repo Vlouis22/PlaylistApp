@@ -32,10 +32,7 @@ public class Controller implements Initializable {
     // add light mode and dark mode
     // play next song automatically
     // add splash background to playlist name
-    // make the background the music that is playing (make it almost invisible)
 
-    //@FXML
-    //private AnchorPane pane;
     @FXML
     private Label songLabel;
 
@@ -110,6 +107,7 @@ public class Controller implements Initializable {
         playlistArray = new ArrayList<>();
         newPlaylist = new Playlist("Default Playlist");
         playlistArray.add(newPlaylist);
+        running = false;
 
         MenuItem newMenuItem = new MenuItem("Default Playlist");
         newMenuItem.setOnAction(this::switchPlaylist);
@@ -118,7 +116,7 @@ public class Controller implements Initializable {
 
         myPane = new AnchorPane();
         setDisplay();
-        setBackgroundIMG(new Image("https://e-cdns-images.dzcdn.net/images/artist/7432efa1fc1d9a1c5a7049512792b9fc/500x500-000000-80-0-0.jpg"));
+        //setBackgroundIMG(new Image("https://e-cdns-images.dzcdn.net/images/artist/7432efa1fc1d9a1c5a7049512792b9fc/500x500-000000-80-0-0.jpg"));
 
 
         volumeSlider.valueProperty().addListener(new ChangeListener<Number>() {
@@ -130,8 +128,7 @@ public class Controller implements Initializable {
     }
 
     public void playMedia() {
-        beginTimer();
-        pauseMedia();
+        mediaPlayer.stop();
         if (newPlaylist.getSize() != 0) {
             if (songNumber > newPlaylist.getSize()) {
                 songNumber = 1;
@@ -139,16 +136,16 @@ public class Controller implements Initializable {
                 songNumber = newPlaylist.getSize();
             }
 
-            setDisplay();
-
             String url = newPlaylist.playSong(songNumber - 1).toString();
             media = new Media(url);
             mediaPlayer = new MediaPlayer(media);
+            beginTimer();
             this.mediaPlayer.play();
 
         } else {
             unvisible();
         }
+        setDisplay();
     }
 
     public void setDisplay() {
@@ -159,10 +156,6 @@ public class Controller implements Initializable {
             else if (songNumber < 1) {
                 songNumber = newPlaylist.getSize();
             }
-            System.out.println("Song number: " + songNumber);
-            System.out.println("Playlist size: " + newPlaylist.getSize());
-            System.out.println();
-
 
             getCurrentImage();
             getPreviousImage();
@@ -177,32 +170,32 @@ public class Controller implements Initializable {
             currentPlaylistText.setText(newPlaylist.name);
 
             visible();
+            showMenu();
 
         } else {
             unvisible();
 
             songLabel.setText("There's Nothing Holding Me Back");
-            prevSongLabel.setText("Tranble");
+            prevSongLabel.setText("Lose Yourself");
             nextSongLabel.setText("Mask Off");
 
             Image shawnImg = new Image("https://e-cdns-images.dzcdn.net/images/artist/7432efa1fc1d9a1c5a7049512792b9fc/500x500-000000-80-0-0.jpg");
             Image FutureImg = new Image("https://e-cdns-images.dzcdn.net/images/artist/f24795f13743283ddc49c871bc96e836/500x500-000000-80-0-0.jpg");
-            Image RoodyImg = new Image("https://e-cdns-images.dzcdn.net/images/artist/72ae8a7ced6b91b04b095fa8e1ec754c/500x500-000000-80-0-0.jpg");
+            Image EminemImg = new Image("https://e-cdns-images.dzcdn.net/images/artist/19cc38f9d69b352f718782e7a22f9c32/500x500-000000-80-0-0.jpg");
 
             myImageView.setImage(shawnImg);
             mynextImageView.setImage(FutureImg);
-            myprevImageView.setImage(RoodyImg);
-
-            //setBackgroundIMG(shawnImg);
+            myprevImageView.setImage(EminemImg);
 
             currentArtistLabel.setText("Shawn Mendes");
             nextArtistLabel.setText("Future");
-            prevArtistLabel.setText("Roody Roodboy");
+            prevArtistLabel.setText("Eminem");
 
             System.out.println(newPlaylist.getPlaylistName());
             currentPlaylistText.setText(newPlaylist.getPlaylistName());
 
             visible();
+            showMenu();
 
         }
     }
@@ -231,8 +224,9 @@ public class Controller implements Initializable {
     }
 
     public void pauseMedia() {
-        cancelTimer();
         this.mediaPlayer.stop();
+        running = false;
+        cancelTimer();
     }
 
     public void showVolumeSlider() {
@@ -247,19 +241,21 @@ public class Controller implements Initializable {
 
     public void previousMedia() {
         this.mediaPlayer.stop();
-        if (running) {
-            cancelTimer();
-        }
+        //running = true;
+        cancelTimer();
         songNumber--;
-        playMedia();
         beginTimer();
+        playMedia();
+
     }
 
     public void deleteMedia() {
+        mediaPlayer.stop();
         if (newPlaylist.getSize() > 0) {
             newPlaylist.removeSong(newPlaylist.getCurrentSong(songNumber));
-            playMedia();
             beginTimer();
+            playMedia();
+            setDisplay();
         } else {
             unvisible();
             System.out.println("No songs to delete");
@@ -267,12 +263,14 @@ public class Controller implements Initializable {
     }
 
     public void nextMedia() {
+        cancelTimer();
         this.mediaPlayer.stop();
         if (running) {
             cancelTimer();
         }
         songNumber++;
         playMedia();
+        beginTimer();
     }
 
     // timer for the song progress bar
@@ -284,12 +282,12 @@ public class Controller implements Initializable {
                 double current = mediaPlayer.getCurrentTime().toSeconds();
                 double end = media.getDuration().toSeconds();
                 songProgressBar.setProgress(current / end);
-
                 if (Math.abs(current / end - 1.0) < 0.0001) {
                     cancelTimer();
                 }
             }
         };
+
         timer.scheduleAtFixedRate(task, 1000, 1000);
     }
 
@@ -342,8 +340,6 @@ public class Controller implements Initializable {
                 String artist = track.path("artist").path("name").asText();
                 Song song = new Song(title, previewUrl, imageUrl, artist);
                 newPlaylist.addSong(song);
-                System.out.println(imageUrl);
-
                 break;
             }
         } catch (IOException e) {
@@ -392,9 +388,8 @@ public class Controller implements Initializable {
             playlistMenu.getItems().remove(length);
             playlistArray.remove(length);
             newPlaylist = playlistArray.get(0);
-            System.out.println("New playlist name: ");
-            System.out.println(newPlaylist.getPlaylistName());
             setDisplay();
+            showMenu();
         }
         playMedia();
     }
@@ -407,7 +402,6 @@ public class Controller implements Initializable {
         if (selectedPlaylist != null) {
             this.newPlaylist = selectedPlaylist;
             playMedia();
-            System.out.println("Switched to playlist: " + newPlaylist.getPlaylistName());
         }
 
         setDisplay();
@@ -421,10 +415,11 @@ public class Controller implements Initializable {
         if (selectedPlaylist != null) {
             newPlaylist = selectedPlaylist;
             setDisplay();
-            //System.out.println("Changed playlist to: " + newPlaylist.getPlaylistName());
+            showMenu();
         } else {
             setDisplay();
             showVolumeSlider();
+            showMenu();
 
         }
     }
@@ -433,7 +428,6 @@ public class Controller implements Initializable {
         for (Playlist playlist : playlistArray) {
             if (playlist.getPlaylistName().equals(playlistName)) {
                 newPlaylist = playlist;
-                System.out.println(newPlaylist.getSize());
                 return playlist;
             }
         }
@@ -464,9 +458,12 @@ public class Controller implements Initializable {
         newPlaylist.shuffle();
         pauseMedia();
         setDisplay();
+        nextMedia();
         playMedia();
+        showMenu();
     }
 
+    /*
 
     public void setBackgroundIMG(Image image) {
         BackgroundImage backgroundImage = new BackgroundImage(
@@ -487,4 +484,6 @@ public class Controller implements Initializable {
         Background background = new Background(backgroundImage);
         this.myPane.setBackground(background);
     }
+
+     */
 }
