@@ -1,5 +1,6 @@
 package com.example.playlistapp;
 import com.fasterxml.jackson.databind.JsonNode;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -27,11 +28,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Controller implements Initializable {
     public AnchorPane myPane;
-
-    // todo
-    // add light mode and dark mode
-    // play next song automatically
-    // add splash background to playlist name
 
     @FXML
     private Label songLabel;
@@ -96,6 +92,7 @@ public class Controller implements Initializable {
     @FXML
     MenuBar choosePlaylistMenu;
 
+    private boolean isPaused;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -108,6 +105,7 @@ public class Controller implements Initializable {
         newPlaylist = new Playlist("Default Playlist");
         playlistArray.add(newPlaylist);
         running = false;
+        isPaused = false;
 
         MenuItem newMenuItem = new MenuItem("Default Playlist");
         newMenuItem.setOnAction(this::switchPlaylist);
@@ -116,8 +114,6 @@ public class Controller implements Initializable {
 
         myPane = new AnchorPane();
         setDisplay();
-        //setBackgroundIMG(new Image("https://e-cdns-images.dzcdn.net/images/artist/7432efa1fc1d9a1c5a7049512792b9fc/500x500-000000-80-0-0.jpg"));
-
 
         volumeSlider.valueProperty().addListener(new ChangeListener<Number>() {
             @Override
@@ -128,7 +124,9 @@ public class Controller implements Initializable {
     }
 
     public void playMedia() {
-        mediaPlayer.stop();
+        if(running) {
+            mediaPlayer.stop();
+        }
         if (newPlaylist.getSize() != 0) {
             if (songNumber > newPlaylist.getSize()) {
                 songNumber = 1;
@@ -161,12 +159,17 @@ public class Controller implements Initializable {
             getPreviousImage();
             getNextImage();
 
-            songLabel.setText(newPlaylist.getCurrentLabel(songNumber));
-            prevSongLabel.setText(newPlaylist.getPrevLabel(songNumber));
-            nextSongLabel.setText(newPlaylist.getNextLabel(songNumber));
-            currentArtistLabel.setText(newPlaylist.getCurrentArtist(songNumber));
-            prevArtistLabel.setText(newPlaylist.getPrevArtist(songNumber));
-            nextArtistLabel.setText(newPlaylist.getNextArtist(songNumber));
+            if (newPlaylist.getCurrentArtist(songNumber) != null) {
+                currentArtistLabel.setText(newPlaylist.getCurrentArtist(songNumber));
+                prevArtistLabel.setText(newPlaylist.getPrevArtist(songNumber));
+                nextArtistLabel.setText(newPlaylist.getNextArtist(songNumber));
+            }
+            if (newPlaylist.getCurrentLabel(songNumber) != null) {
+                songLabel.setText(newPlaylist.getCurrentLabel(songNumber));
+                prevSongLabel.setText(newPlaylist.getPrevLabel(songNumber));
+                nextSongLabel.setText(newPlaylist.getNextLabel(songNumber));
+
+            }
             currentPlaylistText.setText(newPlaylist.name);
 
             visible();
@@ -191,7 +194,6 @@ public class Controller implements Initializable {
             nextArtistLabel.setText("Future");
             prevArtistLabel.setText("Eminem");
 
-            System.out.println(newPlaylist.getPlaylistName());
             currentPlaylistText.setText(newPlaylist.getPlaylistName());
 
             visible();
@@ -202,6 +204,7 @@ public class Controller implements Initializable {
 
 
     public void visible() {
+
         songLabel.setVisible(true);
         prevSongLabel.setVisible(true);
         nextSongLabel.setVisible(true);
@@ -214,6 +217,7 @@ public class Controller implements Initializable {
     }
 
     public void unvisible() {
+
         songLabel.setVisible(false);
         prevSongLabel.setVisible(false);
         nextSongLabel.setVisible(false);
@@ -225,9 +229,9 @@ public class Controller implements Initializable {
 
     public void pauseMedia() {
         if(newPlaylist.getSize()>0) {
-            this.mediaPlayer.stop();
+            this.mediaPlayer.pause();
             running = false;
-            cancelTimer();
+            isPaused = true;
         }
     }
 
@@ -242,20 +246,20 @@ public class Controller implements Initializable {
     }
 
     public void previousMedia() {
+
         if(newPlaylist.getSize()>0) {
             this.mediaPlayer.stop();
             cancelTimer();
             songNumber--;
-            beginTimer();
             playMedia();
         }
     }
 
     public void deleteMedia() {
+
         mediaPlayer.stop();
         if (newPlaylist.getSize() > 0) {
             newPlaylist.removeSong(newPlaylist.getCurrentSong(songNumber));
-            beginTimer();
             playMedia();
             setDisplay();
         } else {
@@ -266,14 +270,9 @@ public class Controller implements Initializable {
 
     public void nextMedia() {
         if(newPlaylist.getSize()>0) {
-            cancelTimer();
             this.mediaPlayer.stop();
-            if (running) {
-                cancelTimer();
-            }
             songNumber++;
             playMedia();
-            beginTimer();
         }
     }
 
@@ -287,7 +286,10 @@ public class Controller implements Initializable {
                 double end = media.getDuration().toSeconds();
                 songProgressBar.setProgress(current / end);
                 if (Math.abs(current / end - 1.0) < 0.0001) {
-                    cancelTimer();
+                    Platform.runLater(() -> {
+                        cancelTimer();
+                        nextMedia();
+                    });
                 }
             }
         };
@@ -296,8 +298,8 @@ public class Controller implements Initializable {
     }
 
     public void cancelTimer() {
-        running = false;
         timer.cancel();
+        running = false;
     }
 
     public void getPreviousImage() {
@@ -321,6 +323,7 @@ public class Controller implements Initializable {
 
     // Api Call => Gets music from Deezer and allows you to search and play any music
     public void getSong(String songName) {
+
         OkHttpClient client = new OkHttpClient();
         String stringUrl = "https://deezerdevs-deezer.p.rapidapi.com/search?q=";
         stringUrl += songName;
@@ -344,6 +347,7 @@ public class Controller implements Initializable {
                 String artist = track.path("artist").path("name").asText();
                 Song song = new Song(title, previewUrl, imageUrl, artist);
                 newPlaylist.addSong(song);
+                setDisplay();
                 break;
             }
         } catch (IOException e) {
@@ -352,6 +356,7 @@ public class Controller implements Initializable {
     }
 
     public void addSong() {
+
         if (songField.getText() != null) {
             getSong(songField.getText());
             songField.clear();
@@ -359,13 +364,12 @@ public class Controller implements Initializable {
         }
     }
 
+
     public void addPlaylist() {
         String playlistName = newPlaylistText.getText();
         if(!Objects.equals(playlistName, "") || Objects.isNull(playlistName)) {
-            System.out.println("playlist name: "+playlistName);
-            System.out.println(Objects.equals(playlistName, ""));
-            MenuItem newMenuItem = new MenuItem(playlistName);
 
+            MenuItem newMenuItem = new MenuItem(playlistName);
             newMenuItem.setOnAction(this::switchPlaylist);
             newPlaylist = new Playlist(playlistName);
             playlistArray.add(newPlaylist);
@@ -384,17 +388,18 @@ public class Controller implements Initializable {
         }
         showMenu();
         setDisplay();
-        playMedia();
+        if(!isPaused){
+            playMedia();
+        }
     }
 
     public void deletePlaylist() {
         pauseMedia();
-        String playlistName = newPlaylistText.getText();
-        if (playlistArray.size() > 1) {
+        int index = playlistArray.indexOf(newPlaylist);
+        if (index > 0) {
             Menu playlistMenu = (Menu) choosePlaylistMenu.getMenus().get(0);
-            int length = playlistArray.size() - 1;
-            playlistMenu.getItems().remove(length);
-            playlistArray.remove(length);
+            playlistMenu.getItems().remove(index);
+            playlistArray.remove(index);
             newPlaylist = playlistArray.get(0);
             setDisplay();
             showMenu();
@@ -403,21 +408,25 @@ public class Controller implements Initializable {
     }
 
     public void switchPlaylist(ActionEvent event) {
-        MenuItem menuItem = (MenuItem) event.getSource();
-        String selectedPlaylistName = menuItem.getText();
-        Playlist selectedPlaylist = getPlaylistByName(selectedPlaylistName);
+        if(playlistArray.size()>1) {
+            MenuItem menuItem = (MenuItem) event.getSource();
+            String selectedPlaylistName = menuItem.getText();
+            Playlist selectedPlaylist = getPlaylistByName(selectedPlaylistName);
 
-        if (selectedPlaylist != null) {
-            this.newPlaylist = selectedPlaylist;
-            playMedia();
+            if (selectedPlaylist != null) {
+                this.newPlaylist = selectedPlaylist;
+            }
+            if(running){
+                playMedia();
+            }
+            setDisplay();
+            showMenu();
+            showVolumeSlider();
         }
-
-        setDisplay();
-        showMenu();
-        showVolumeSlider();
     }
 
     public void handlePlaylistSelection(ActionEvent event) {
+
         MenuItem menuItem = (MenuItem) event.getSource();
         Playlist selectedPlaylist = getPlaylistByName(menuItem.getText());
         if (selectedPlaylist != null) {
@@ -428,11 +437,11 @@ public class Controller implements Initializable {
             setDisplay();
             showVolumeSlider();
             showMenu();
-
         }
     }
 
     private Playlist getPlaylistByName(String playlistName) {
+
         for (Playlist playlist : playlistArray) {
             if (playlist.getPlaylistName().equals(playlistName)) {
                 newPlaylist = playlist;
@@ -443,6 +452,7 @@ public class Controller implements Initializable {
     }
 
     private void hideMenu() {
+
         newPlaylistButton.setVisible(false);
         newPlaylistText.setVisible(false);
         songField.setVisible(false);
@@ -494,4 +504,10 @@ public class Controller implements Initializable {
     }
 
      */
+
+
+    // todo
+    // add light mode and dark mode
+    // play next song automatically
+    // add splash background to playlist name
 }
