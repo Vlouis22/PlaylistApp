@@ -12,7 +12,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.*;
 
@@ -30,10 +32,7 @@ public class Controller implements Initializable {
     public AnchorPane myPane;
 
     @FXML
-    private Label songLabel;
-
-    @FXML
-    private Label prevSongLabel;
+    private Label songLabel, prevSongLabel, nextSongLabel;
 
     @FXML
     private Button addNewSongButton;
@@ -42,32 +41,33 @@ public class Controller implements Initializable {
     private TextField newPlaylistText;
 
     @FXML
-    private Label nextSongLabel;
-    @FXML
     private Slider volumeSlider;
 
     @FXML
-    private Label prevArtistLabel;
+    private Label prevArtistLabel, currentArtistLabel, nextArtistLabel ;
 
     @FXML
-    private Label nextArtistLabel;
+    private Label previous, next;
 
-    @FXML
-    private Label previous;
-
-    @FXML
-    private Label next;
-
-    @FXML
-    private Label currentArtistLabel;
     @FXML
     private ProgressBar songProgressBar;
     @FXML
     private TextField songField;
-    private Media media;
 
     @FXML
     private Label currentPlaylistText;
+
+    @FXML
+    ImageView myImageView;
+    @FXML
+    ImageView myprevImageView;
+    @FXML
+    ImageView mynextImageView;
+    @FXML
+    MenuBar choosePlaylistMenu;
+
+    private Media media;
+
     private MediaPlayer mediaPlayer;
     public Button previousButton, nextButton, pauseButton, playButton, deleteButton;
     public Button newPlaylistButton, shuffleButton, deletePlaylistButton;
@@ -81,21 +81,14 @@ public class Controller implements Initializable {
 
     private ArrayList<Playlist> playlistArray;
 
-    @FXML
-    ImageView myImageView;
-    @FXML
-    ImageView myprevImageView;
-
-    @FXML
-    ImageView mynextImageView;
-
-    @FXML
-    MenuBar choosePlaylistMenu;
-
     private boolean isPaused;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        // todo
+        // add light mode and dark mode
+        // add splash background to playlist name
+
         String previewUrl = "https://cdns-preview-8.dzcdn.net/stream/c-8b7aaf57e2aa777e6c64da14ad741754-5.mp3";
         songNumber = 0;
         media = new Media(previewUrl);
@@ -330,7 +323,7 @@ public class Controller implements Initializable {
         Request request = new Request.Builder()
                 .url(stringUrl)
                 .get()
-                .addHeader("X-RapidAPI-Key", "ff047da37amsh4dcf829642fb1dep1e3e34jsnd9d42c0e673d")
+                .addHeader("X-RapidAPI-Key", System.getenv("API_KEY"))
                 .addHeader("X-RapidAPI-Host", "deezerdevs-deezer.p.rapidapi.com")
                 .build();
 
@@ -482,7 +475,6 @@ public class Controller implements Initializable {
     }
 
     /*
-
     public void setBackgroundIMG(Image image) {
         BackgroundImage backgroundImage = new BackgroundImage(
                 image,
@@ -502,12 +494,6 @@ public class Controller implements Initializable {
         Background background = new Background(backgroundImage);
         this.myPane.setBackground(background);
     }
-
      */
 
-
-    // todo
-    // add light mode and dark mode
-    // play next song automatically
-    // add splash background to playlist name
 }

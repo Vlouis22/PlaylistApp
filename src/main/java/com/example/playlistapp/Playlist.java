@@ -65,6 +65,13 @@ public class Playlist {
     }
 
     public String getCurrentLabel(int songNumber){
+        // changed
+        if(songNumber<0){
+            songNumber = 1;
+        }
+        else if(songNumber>songs.size()){
+            songNumber = songs.size();
+        }
         return songs.get(songNumber-1).title;
     }
 
