@@ -92,7 +92,7 @@ public class Controller implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // todo
         // add light mode and dark mode
-        // add splash background to playlist name
+        // fix play/pause
 
         String previewUrl = "https://cdns-preview-8.dzcdn.net/stream/c-8b7aaf57e2aa777e6c64da14ad741754-5.mp3";
         songNumber = 0;
@@ -123,24 +123,30 @@ public class Controller implements Initializable {
     }
 
     public void playMedia() {
-        if(running) {
-            mediaPlayer.stop();
+        if(isPaused){
+            mediaPlayer.play();
+            isPaused = false;
         }
-        if (newPlaylist.getSize() != 0) {
-            if (songNumber > newPlaylist.getSize()) {
-                songNumber = 1;
-            } else if (songNumber < 1) {
-                songNumber = newPlaylist.getSize();
+        else {
+            if (running) {
+                mediaPlayer.stop();
             }
+            if (newPlaylist.getSize() != 0) {
+                if (songNumber > newPlaylist.getSize()) {
+                    songNumber = 1;
+                } else if (songNumber < 1) {
+                    songNumber = newPlaylist.getSize();
+                }
 
-            String url = newPlaylist.playSong(songNumber - 1).toString();
-            media = new Media(url);
-            mediaPlayer = new MediaPlayer(media);
-            beginTimer();
-            this.mediaPlayer.play();
+                String url = newPlaylist.playSong(songNumber - 1).toString();
+                media = new Media(url);
+                mediaPlayer = new MediaPlayer(media);
+                beginTimer();
+                this.mediaPlayer.play();
 
-        } else {
-            unvisible();
+            } else {
+                unvisible();
+            }
         }
         setDisplay();
     }
@@ -246,7 +252,7 @@ public class Controller implements Initializable {
     }
 
     public void previousMedia() {
-
+        isPaused = false;
         if(newPlaylist.getSize()>0) {
             this.mediaPlayer.stop();
             cancelTimer();
@@ -256,7 +262,7 @@ public class Controller implements Initializable {
     }
 
     public void deleteMedia() {
-
+        isPaused = false;
         mediaPlayer.stop();
         if (newPlaylist.getSize() > 0) {
             newPlaylist.removeSong(newPlaylist.getCurrentSong(songNumber));
@@ -269,6 +275,7 @@ public class Controller implements Initializable {
     }
 
     public void nextMedia() {
+        isPaused = false;
         if(newPlaylist.getSize()>0) {
             this.mediaPlayer.stop();
             songNumber++;

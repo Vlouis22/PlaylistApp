@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane fx:id="myPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="600" minWidth="940.0" onKeyPressed="#showVolumeSlider" onMouseClicked="#showVolumeSlider" onMouseEntered="#showVolumeSlider" onMouseExited="#hideVolumeSlider" prefHeight="600.0" prefWidth="909.0" style="-fx-background-color: #262626;" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.playlistapp.Controller">
+<AnchorPane fx:id="myPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="600" minWidth="940.0" onKeyPressed="#showVolumeSlider" onMouseClicked="#showVolumeSlider" onMouseEntered="#showVolumeSlider" onMouseExited="#hideVolumeSlider" prefHeight="600.0" prefWidth="909.0" style="-fx-background-image: url(&quot;bluebackground2.jpeg&quot;);" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.playlistapp.Controller">
    <children>
       <Button fx:id="previousButton" layoutX="320.0" layoutY="554.0" mnemonicParsing="false" onAction="#previousMedia" prefHeight="30.0" prefWidth="65.0" text="Previous" />
       <Button fx:id="pauseButton" layoutX="445.0" layoutY="554.0" mnemonicParsing="false" onAction="#pauseMedia" prefHeight="30.0" prefWidth="60.0" text="Pause" />
@@ -21,7 +21,7 @@
          </font></Label>
       <Label fx:id="currentPlaylistText" alignment="CENTER" contentDisplay="CENTER" layoutX="275.0" layoutY="67.0" minWidth="370.0" prefWidth="370.0" text="Default Playlist" textAlignment="CENTER" textFill="WHITE" wrapText="true">
          <font>
-            <Font name="Heiti TC Light" size="33.0" />
+            <Font name="Heiti TC Medium" size="33.0" />
          </font>
       </Label>
       <TextField fx:id="songField" layoutX="790.0" layoutY="1.0" prefHeight="30.0" prefWidth="150.0" />
