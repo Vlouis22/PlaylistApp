@@ -10,6 +10,8 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 
 import java.io.FileInputStream;
@@ -26,6 +28,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.scene.*;
 
 
 public class Controller implements Initializable {
@@ -83,6 +86,8 @@ public class Controller implements Initializable {
 
     private boolean isPaused;
 
+
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // todo
@@ -107,6 +112,7 @@ public class Controller implements Initializable {
 
         myPane = new AnchorPane();
         setDisplay();
+
 
         volumeSlider.valueProperty().addListener(new ChangeListener<Number>() {
             @Override
@@ -221,6 +227,7 @@ public class Controller implements Initializable {
     }
 
     public void pauseMedia() {
+
         if(newPlaylist.getSize()>0) {
             this.mediaPlayer.pause();
             running = false;
@@ -473,6 +480,7 @@ public class Controller implements Initializable {
         playMedia();
         showMenu();
     }
+
 
     /*
     public void setBackgroundIMG(Image image) {

@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import java.io.IOException;
 import okhttp3.*;
@@ -18,6 +19,14 @@ public class HelloApplication extends Application {
         stage.setScene(scene);
         stage.setTitle("Playlist App");
         stage.show();
+
+        scene.setOnKeyPressed(e -> {
+            if(e.getCode() == KeyCode.ENTER) {
+                Controller controller = loader.getController();
+                controller.addSong();
+                controller.addPlaylist();
+            }
+        });
     }
 
     public static void main(String[] args) {
